@@ -99,7 +99,9 @@ document.addEventListener("DOMContentLoaded", () => {
 				squares[currentPosition + index].classList.add("taken")
 			);
 			random = nextRandom;
+			//creates the next tetromino
 			nextRandom = Math.floor(Math.random() * theTetrominoes.length);
+			//uploads the display tetromino and resets current position and draws it
 			current = theTetrominoes[random][currentRotation];
 			currentPosition = 4;
 			draw();
@@ -142,12 +144,51 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 		draw();
 	}
+
+	///FIX ROTATION OF TETROMINOS A THE EDGE
+	function isAtRight() {
+		return current.some((index) => (currentPosition + index + 1) % width === 0);
+	}
+
+	function isAtLeft() {
+		return current.some((index) => (currentPosition + index) % width === 0);
+	}
+
+	function checkRotatedPosition(P) {
+		P = P || currentPosition; //get current position.  Then, check if the piece is near the left side.
+		if ((P + 1) % width < 4) {
+			//add 1 because the position index can be 1 less than where the piece is (with how they are indexed).
+			if (isAtRight()) {
+				//use actual position to check if it's flipped over to right side
+				currentPosition += 1; //if so, add one to wrap it back around
+				checkRotatedPosition(P); //check again.  Pass position from start, since long block might need to move more.
+			}
+		} else if (P % width > 5) {
+			if (isAtLeft()) {
+				currentPosition -= 1;
+				checkRotatedPosition(P);
+			}
+		}
+	}
+
 	function rotate() {
-		undraw();
-		currentRotation++;
-		if (currentRotation === current.length) currentRotation = 0;
-		current = theTetrominoes[random][currentRotation];
-		draw();
+		let tempRot = currentRotation + 1;
+		if (tempRot === current.length) tempRot = 0;
+		let temp = theTetrominoes[random][tempRot];
+
+		if (
+			!temp.some((index) =>
+				squares[currentPosition + index + width].classList.contains("taken")
+			)
+		) {
+			undraw();
+			currentRotation++;
+			if (currentRotation === current.length) currentRotation = 0;
+			current = theTetrominoes[random][currentRotation];
+
+			checkRotatedPosition();
+			draw();
+		}
 	}
 
 	const displaySquares = document.querySelectorAll(".mini-grid div");
@@ -177,7 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			timerId = null;
 		} else {
 			draw();
-			timerId = setInterval(moveDown, 1000);
+			timerId = setInterval(null, 1000);
 
 			displayShape();
 		}
