@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	let nextRandom = 0;
 	let timerId;
 	let score = 0;
+	const colors = ["red", "blue", "green", "black", "purple"];
 
 	const lTetromino = [
 		[1, width + 1, width * 2 + 1, 2],
@@ -56,14 +57,17 @@ document.addEventListener("DOMContentLoaded", () => {
 	let current = theTetrominoes[random][currentRotation];
 
 	function draw() {
+		console.log("Draw current positon" + currentPosition);
 		current.forEach((index) => {
 			squares[currentPosition + index].classList.add("tetromino");
+			squares[currentPosition + index].style.backgroundColor = colors[random];
 		});
 	}
 
 	function undraw() {
 		current.forEach((index) => {
 			squares[currentPosition + index].classList.remove("tetromino");
+			squares[currentPosition + index].style.backgroundColor = "";
 		});
 	}
 
@@ -95,16 +99,20 @@ document.addEventListener("DOMContentLoaded", () => {
 				squares[currentPosition + index].classList.contains("taken")
 			)
 		) {
-			currentPosition -= width;
+			undraw();
+			currentPosition -= width; //push tetrimino above taken
 			current.forEach((index) =>
 				squares[currentPosition + index].classList.add("taken")
 			);
 			random = nextRandom;
 			//creates the next tetromino
 			nextRandom = Math.floor(Math.random() * theTetrominoes.length);
+			currentRotation = 0;
 			//uploads the display tetromino and resets current position and draws it
 			current = theTetrominoes[random][currentRotation];
+
 			currentPosition = 4;
+
 			draw();
 			displayShape();
 			addScore();
@@ -179,12 +187,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		if (
 			!temp.some((index) =>
-				squares[currentPosition + index + width].classList.contains("taken")
+				squares[currentPosition + index].classList.contains("taken")
 			)
 		) {
 			undraw();
 			currentRotation++;
-			if (currentRotation === current.length) currentRotation = 0;
+			if (currentRotation === theTetrominoes[random].length)
+				currentRotation = 0;
 			current = theTetrominoes[random][currentRotation];
 
 			checkRotatedPosition();
@@ -219,7 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			timerId = null;
 		} else {
 			draw();
-			timerId = setInterval(moveDown, 1000);
+			timerId = setInterval(null, 1000);
 
 			displayShape();
 		}
