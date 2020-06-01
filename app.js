@@ -92,9 +92,10 @@ document.addEventListener("DOMContentLoaded", () => {
 	function freeze() {
 		if (
 			current.some((index) =>
-				squares[currentPosition + index + width].classList.contains("taken")
+				squares[currentPosition + index].classList.contains("taken")
 			)
 		) {
+			currentPosition -= width;
 			current.forEach((index) =>
 				squares[currentPosition + index].classList.add("taken")
 			);
@@ -120,7 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		if (
 			current.some((index) =>
-				squares[currentPosition + index + width].classList.contains("taken")
+				squares[currentPosition + index].classList.contains("taken")
 			)
 		) {
 			currentPosition += 1;
@@ -137,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		if (
 			current.some((index) =>
-				squares[currentPosition + index + width].classList.contains("taken")
+				squares[currentPosition + index].classList.contains("taken")
 			)
 		) {
 			currentPosition -= 1;
@@ -173,7 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	function rotate() {
 		let tempRot = currentRotation + 1;
-		if (tempRot === current.length) tempRot = 0;
+		if (tempRot === theTetrominoes[random].length) tempRot = 0;
 		let temp = theTetrominoes[random][tempRot];
 
 		if (
@@ -218,7 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			timerId = null;
 		} else {
 			draw();
-			timerId = setInterval(null, 1000);
+			timerId = setInterval(moveDown, 1000);
 
 			displayShape();
 		}
