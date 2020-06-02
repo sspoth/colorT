@@ -112,10 +112,9 @@ document.addEventListener("DOMContentLoaded", () => {
 			current = theTetrominoes[random][currentRotation];
 
 			currentPosition = 4;
-
+			addScore();
 			draw();
 			displayShape();
-			addScore();
 			gameOver();
 		}
 	}
@@ -228,7 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			timerId = null;
 		} else {
 			draw();
-			timerId = setInterval(null, 1000);
+			timerId = setInterval(moveDown, 1000);
 
 			displayShape();
 		}
