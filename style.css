@@ -1,13 +1,28 @@
 .container {
 	display: flex;
+	justify-content: center;
+	flex-direction: column;
+
+	align-items: center;
+}
+.score {
+	width: 190px;
+	height: 40px;
+	display: flex;
 }
 
 .grid {
 	width: 200px;
-	height: 400px;
+	height: 420px;
 	display: flex;
 	flex-wrap: wrap;
 	background-color: yellow;
+}
+
+.game-layer {
+	display: flex;
+	flex-wrap: wrap;
+	flex-direction: row;
 }
 
 .grid div {
