@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
 	let timerId;
 	let score = 0;
 	const colors = ["red", "blue", "green", "black", "purple"];
+	let reserved = 0;
+	let reservedTetromino = -1;
 
 	const lTetromino = [
 		[1, width + 1, width * 2 + 1, 2],
@@ -57,7 +59,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	let current = theTetrominoes[random][currentRotation];
 
 	function draw() {
-		console.log("Draw current positon" + currentPosition);
 		current.forEach((index) => {
 			squares[currentPosition + index].classList.add("tetromino");
 			squares[currentPosition + index].style.backgroundColor = colors[random];
@@ -80,6 +81,8 @@ document.addEventListener("DOMContentLoaded", () => {
 			moveRight();
 		} else if (e.keyCode === 40) {
 			moveDown();
+		} else if (e.keyCode === 82) {
+			reserveTetromino();
 		}
 	}
 
@@ -104,19 +107,24 @@ document.addEventListener("DOMContentLoaded", () => {
 			current.forEach((index) =>
 				squares[currentPosition + index].classList.add("taken")
 			);
-			random = nextRandom;
-			//creates the next tetromino
-			nextRandom = Math.floor(Math.random() * theTetrominoes.length);
-			currentRotation = 0;
-			//uploads the display tetromino and resets current position and draws it
-			current = theTetrominoes[random][currentRotation];
-
-			currentPosition = 4;
+			uploadToCurrent();
+			reserved = 1;
 			addScore();
 			draw();
 			displayShape();
 			gameOver();
 		}
+	}
+
+	function uploadToCurrent() {
+		random = nextRandom;
+		//creates the next tetromino
+		nextRandom = Math.floor(Math.random() * theTetrominoes.length);
+		currentRotation = 0;
+		//uploads the display tetromino and resets current position and draws it
+		current = theTetrominoes[random][currentRotation];
+
+		currentPosition = 4;
 	}
 
 	function moveLeft() {
@@ -268,6 +276,38 @@ document.addEventListener("DOMContentLoaded", () => {
 		) {
 			scoreDisplay.innerHTML = "end";
 			clearInterval(timerId);
+		}
+	}
+	const reserveSquares = document.querySelectorAll(".reserve-grid div");
+
+	function reserveTetromino() {
+		//when there is no block in reserve
+		if (reservedTetromino <= 0) {
+			reserved = 2;
+			reservedTetromino = random;
+			undraw();
+			uploadToCurrent();
+			draw();
+			upNextTetrominoes[reservedTetromino].forEach((index) => {
+				reserveSquares[displayIndex + index].classList.add("tetromino");
+			});
+			displayShape();
+		} else if (reserved === 1) {
+			reserved = 2;
+			undraw();
+			reserveSquares.forEach((square) => {
+				square.classList.remove("tetromino");
+			});
+			upNextTetrominoes[random].forEach((index) => {
+				reserveSquares[displayIndex + index].classList.add("tetromino");
+			});
+
+			currentRotation = 0;
+			current = theTetrominoes[reservedTetromino][currentRotation];
+			currentPosition = 4;
+			draw();
+
+			reservedTetromino = random;
 		}
 	}
 });
