@@ -16,7 +16,7 @@
 	height: 420px;
 	display: flex;
 	flex-wrap: wrap;
-	background-color: yellow;
+	background-color: lightgrey;
 }
 
 .game-layer {
@@ -34,17 +34,13 @@
 	background-color: blue;
 }
 
-.taken {
-	background-color: orange;
-}
-
 .mini-grid {
 	margin-left: 50px;
 	height: 80px;
 	width: 80px;
 	display: flex;
 	flex-wrap: wrap;
-	background-color: greenyellow;
+	background-color: lightgrey;
 }
 
 .mini-grid div {
@@ -58,10 +54,14 @@
 	width: 80px;
 	display: flex;
 	flex-wrap: wrap;
-	background-color: black;
+	background-color: lightgrey;
 }
 
 .reserve-grid div {
 	height: 20px;
 	width: 20px;
+}
+
+.taken {
+	background-color: black;
 }

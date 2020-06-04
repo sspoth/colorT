@@ -7,38 +7,62 @@ document.addEventListener("DOMContentLoaded", () => {
 	let nextRandom = 0;
 	let timerId;
 	let score = 0;
-	const colors = ["red", "blue", "green", "black", "purple"];
+	const colors = [
+		"blue",
+		"orange",
+		"green",
+		"red",
+		"magenta",
+		"yellow",
+		"cyan"
+	];
 	let reserved = 0;
-	let reservedTetromino = -1;
+	let randomTet = -1;
+	let paused = false;
 
-	const lTetromino = [
+	//BLUE RICKY
+	const jTetromino = [
 		[1, width + 1, width * 2 + 1, 2],
 		[width, width + 1, width + 2, width * 2 + 2],
 		[1, width + 1, width * 2 + 1, width * 2],
 		[width, width * 2, width * 2 + 1, width * 2 + 2]
 	];
-
-	const zTetromino = [
+	//ORANGE RICKY
+	const lTetromino = [
+		[0, width + 1, width * 2 + 1, 1],
+		[width, width + 1, width + 2, width * 2],
+		[1, width + 1, width * 2 + 1, width * 2 + 2],
+		[width + 2, width * 2, width * 2 + 1, width * 2 + 2]
+	];
+	//RHODE ISLAND Z
+	const sTetromino = [
 		[0, width, width + 1, width * 2 + 1],
 		[width + 1, width + 2, width * 2, width * 2 + 1],
 		[0, width, width + 1, width * 2 + 1],
 		[width + 1, width + 2, width * 2, width * 2 + 1]
 	];
-
+	//CLEVELAND Z
+	const zTetromino = [
+		[1, width, width + 1, width * 2],
+		[width, width - 1, width * 2, width * 2 + 1],
+		[1, width, width + 1, width * 2],
+		[width, width - 1, width * 2, width * 2 + 1]
+	];
+	//TEEWEE
 	const tTetromino = [
 		[1, width, width + 1, width + 2],
 		[1, width + 1, width + 2, width * 2 + 1],
 		[width, width + 1, width + 2, width * 2 + 1],
 		[1, width, width + 1, width * 2 + 1]
 	];
-
+	//SMASHBOY
 	const oTetromino = [
 		[0, 1, width, width + 1],
 		[0, 1, width, width + 1],
 		[0, 1, width, width + 1],
 		[0, 1, width, width + 1]
 	];
-
+	//HERO
 	const iTetromino = [
 		[1, width + 1, width * 2 + 1, width * 3 + 1],
 		[width, width + 1, width + 2, width + 3],
@@ -47,7 +71,9 @@ document.addEventListener("DOMContentLoaded", () => {
 	];
 
 	const theTetrominoes = [
+		jTetromino,
 		lTetromino,
+		sTetromino,
 		zTetromino,
 		tTetromino,
 		oTetromino,
@@ -73,16 +99,18 @@ document.addEventListener("DOMContentLoaded", () => {
 	}
 
 	function control(e) {
-		if (e.keyCode === 37) {
-			moveLeft();
-		} else if (e.keyCode === 38) {
-			rotate();
-		} else if (e.keyCode === 39) {
-			moveRight();
-		} else if (e.keyCode === 40) {
-			moveDown();
-		} else if (e.keyCode === 82) {
-			reserveTetromino();
+		if (!paused) {
+			if (e.keyCode === 37) {
+				moveLeft();
+			} else if (e.keyCode === 38) {
+				rotate();
+			} else if (e.keyCode === 39) {
+				moveRight();
+			} else if (e.keyCode === 40) {
+				moveDown();
+			} else if (e.keyCode === 82) {
+				reserveTetromino();
+			}
 		}
 	}
 
@@ -92,28 +120,29 @@ document.addEventListener("DOMContentLoaded", () => {
 	function moveDown() {
 		undraw();
 		currentPosition += width;
-		draw();
-		freeze();
-	}
-
-	function freeze() {
 		if (
 			current.some((index) =>
 				squares[currentPosition + index].classList.contains("taken")
 			)
 		) {
-			undraw();
-			currentPosition -= width; //push tetrimino above taken
-			current.forEach((index) =>
-				squares[currentPosition + index].classList.add("taken")
-			);
-			uploadToCurrent();
-			reserved = 1;
-			addScore();
-			draw();
-			displayShape();
-			gameOver();
+			currentPosition -= width;
+			freeze();
 		}
+		draw();
+	}
+
+	function freeze() {
+		undraw();
+		current.forEach((index) => {
+			squares[currentPosition + index].classList.add("taken");
+			squares[currentPosition + index].style.backgroundColor = colors[random];
+		});
+		uploadToCurrent();
+		reserved = 1;
+		addScore();
+		draw();
+		displayShape();
+		gameOver();
 	}
 
 	function uploadToCurrent() {
@@ -213,8 +242,10 @@ document.addEventListener("DOMContentLoaded", () => {
 	let displayIndex = 0;
 
 	const upNextTetrominoes = [
-		[1, displayWidth + 1, displayWidth * 2 + 1, 2], //lTetromino
-		[0, displayWidth, displayWidth + 1, displayWidth * 2 + 1], //zTetromino
+		[1, displayWidth + 1, displayWidth * 2 + 1, 2], //jTetromino
+		[1, displayWidth + 1, displayWidth * 2 + 1, 0], //lTetromino
+		[0, displayWidth, displayWidth + 1, displayWidth * 2 + 1], //sTetromino
+		[1, displayWidth, displayWidth + 1, displayWidth * 2], //zTetromino
 		[1, displayWidth, displayWidth + 1, displayWidth + 2], //tTetromino
 		[0, 1, displayWidth, displayWidth + 1], //oTetromino
 		[1, displayWidth + 1, displayWidth * 2 + 1, displayWidth * 3 + 1] //iTetromino
@@ -223,9 +254,12 @@ document.addEventListener("DOMContentLoaded", () => {
 	function displayShape() {
 		displaySquares.forEach((square) => {
 			square.classList.remove("tetromino");
+			square.style.backgroundColor = "";
 		});
 		upNextTetrominoes[nextRandom].forEach((index) => {
 			displaySquares[displayIndex + index].classList.add("tetromino");
+			displaySquares[displayIndex + index].style.backgroundColor =
+				colors[nextRandom];
 		});
 	}
 
@@ -233,7 +267,9 @@ document.addEventListener("DOMContentLoaded", () => {
 		if (timerId) {
 			clearInterval(timerId);
 			timerId = null;
+			paused = true;
 		} else {
+			paused = false;
 			draw();
 			timerId = setInterval(moveDown, 1000);
 
@@ -261,6 +297,7 @@ document.addEventListener("DOMContentLoaded", () => {
 				row.forEach((index) => {
 					squares[index].classList.remove("taken");
 					squares[index].classList.remove("tetromino");
+					squares[index].style.backgroundColor = "";
 				});
 				const squaresRemoved = squares.splice(i, width);
 				squares = squaresRemoved.concat(squares);
@@ -282,14 +319,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	function reserveTetromino() {
 		//when there is no block in reserve
-		if (reservedTetromino <= 0) {
+		if (randomTet < 0) {
 			reserved = 2;
-			reservedTetromino = random;
+			randomTet = random;
+			console.log(randomTet);
 			undraw();
 			uploadToCurrent();
 			draw();
-			upNextTetrominoes[reservedTetromino].forEach((index) => {
+			upNextTetrominoes[randomTet].forEach((index) => {
 				reserveSquares[displayIndex + index].classList.add("tetromino");
+				reserveSquares[displayIndex + index].style.backgroundColor =
+					colors[randomTet];
 			});
 			displayShape();
 		} else if (reserved === 1) {
@@ -297,17 +337,22 @@ document.addEventListener("DOMContentLoaded", () => {
 			undraw();
 			reserveSquares.forEach((square) => {
 				square.classList.remove("tetromino");
+				square.style.backgroundColor = "";
 			});
 			upNextTetrominoes[random].forEach((index) => {
 				reserveSquares[displayIndex + index].classList.add("tetromino");
+				reserveSquares[displayIndex + index].style.backgroundColor =
+					colors[random];
 			});
 
 			currentRotation = 0;
-			current = theTetrominoes[reservedTetromino][currentRotation];
+			var tempRandom = random;
+			current = theTetrominoes[randomTet][currentRotation];
 			currentPosition = 4;
+			console.log(randomTet);
+			random = randomTet;
+			randomTet = tempRandom;
 			draw();
-
-			reservedTetromino = random;
 		}
 	}
 });
